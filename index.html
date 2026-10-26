@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UEFA Kandam League — eFootball</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#060b14;
+    --bg-panel:#0e1a2b;
+    --bg-panel-2:#122544;
+    --line: rgba(140,175,220,0.14);
+    --line-strong: rgba(140,175,220,0.28);
+    --green:#33ffa0;
+    --green-dim: rgba(51,255,160,0.15);
+    --blue:#3d8bff;
+    --gold:#ffc94d;
+    --red:#ff5c72;
+    --text:#eaf1fa;
+    --text-dim:#8ca0bc;
+    --text-faint:#5b6c85;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg-deep);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* ambient pitch-line texture */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrap{position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:0 24px;}
+
+  /* NAV */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 0; border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:9px;
+    background: conic-gradient(from 210deg, var(--green), var(--blue), var(--green));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Teko',sans-serif; font-weight:700; font-size:20px; color:#04140d;
+    box-shadow:0 0 24px rgba(51,255,160,0.35);
+  }
+  .brand-text{font-family:'Teko',sans-serif; font-size:26px; font-weight:600; letter-spacing:0.5px; line-height:1;}
+  .brand-text span{color:var(--green);}
+  .nav-tag{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px;
+    color:var(--text-dim); text-transform:uppercase;
+    display:flex; align-items:center; gap:8px;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+  /* HERO */
+  .hero{
+    position:relative;
+    padding:72px 0 56px;
+    text-align:center;
+    overflow:hidden;
+  }
+  .floodlight{
+    position:absolute; top:-260px; left:50%; transform:translateX(-50%);
+    width:900px; height:560px;
+    background: radial-gradient(ellipse at center, rgba(51,255,160,0.16), rgba(61,139,255,0.08) 45%, transparent 70%);
+    filter: blur(10px);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:3px;
+    color:var(--green); text-transform:uppercase; margin-bottom:18px;
+    position:relative; z-index:1;
+  }
+  .hero h1{
+    font-family:'Teko',sans-serif; font-weight:700;
+    font-size:clamp(48px,9vw,104px);
+    line-height:0.95; margin:0; letter-spacing:0.5px;
+    position:relative; z-index:1;
+  }
+  .hero h1 .accent{color:var(--green); text-shadow:0 0 40px rgba(51,255,160,0.4);}
+  .hero-sub{
+    color:var(--text-dim); font-size:15px; max-width:520px; margin:20px auto 0;
+    position:relative; z-index:1; line-height:1.6;
+  }
+  .format-row{
+    display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+    margin-top:32px; position:relative; z-index:1;
+  }
+  .format-chip{
+    border:1px solid var(--line-strong); background:var(--bg-panel);
+    padding:9px 18px; border-radius:100px;
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.5px; color:var(--text);
+  }
+  .format-chip b{color:var(--green); font-weight:600;}
+
+  /* crest strip */
+  .crest-strip{
+    display:flex; justify-content:center; gap:28px; flex-wrap:wrap;
+    margin-top:48px; position:relative; z-index:1;
+  }
+  .crest{
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    width:120px;
+  }
+  .crest-badge{
+    width:64px;height:64px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Teko',sans-serif; font-weight:700; font-size:24px;
+    border:1px solid var(--line-strong);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+  }
+  .crest-name{font-size:11.5px; color:var(--text-dim); text-align:center; line-height:1.3; letter-spacing:0.3px;}
+
+  /* SECTION HEADERS */
+  section{position:relative; z-index:1; margin-top:64px;}
+  .sec-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--line);
+  }
+  .sec-head h2{
+    font-family:'Teko',sans-serif; font-size:32px; font-weight:600; margin:0; letter-spacing:0.3px;
+  }
+  .sec-head h2 span{color:var(--green);}
+  .sec-note{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); letter-spacing:0.5px;}
+
+  /* TABLE */
+  .table-panel{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:14px;
+    overflow:hidden;
+  }
+  table{width:100%; border-collapse:collapse;}
+  thead th{
+    text-align:center; font-family:'JetBrains Mono',monospace; font-weight:500;
+    font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:var(--text-faint);
+    padding:14px 8px; border-bottom:1px solid var(--line-strong);
+    background:var(--bg-panel-2);
+  }
+  thead th:first-child, tbody td.pos{padding-left:20px; text-align:left;}
+  thead th.club, tbody td.club{text-align:left;}
+  tbody td{
+    padding:14px 8px; text-align:center; font-size:14px;
+    border-bottom:1px solid var(--line); font-variant-numeric: tabular-nums;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr{transition:background 0.15s;}
+  tbody tr:hover{background:rgba(61,139,255,0.05);}
+  td.pos{font-family:'Teko',sans-serif; font-size:20px; color:var(--text-dim); width:44px; position:relative;}
+  tr.leader td.pos{color:var(--gold);}
+  tr.leader{background: linear-gradient(90deg, var(--green-dim), transparent 60%);}
+  .rank-bar{position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:2px;}
+  tr.leader .rank-bar{background:var(--gold);}
+  td.club{text-align:left; font-weight:600; font-size:14px;}
+  .club-cell{display:flex; align-items:center; gap:10px;}
+  .mini-badge{
+    width:30px;height:26px;border-radius:7px; flex:none;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Teko',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.3px;
+  }
+  td.pts{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:15px; color:var(--green);}
+  td.gd.pos-gd{color:var(--green);}
+  td.gd.neg-gd{color:var(--red);}
+  .form-dots{display:flex; gap:4px; justify-content:center;}
+  .fdot{width:8px;height:8px;border-radius:50%; background:var(--text-faint);}
+  .fdot.w{background:var(--green);}
+  .fdot.d{background:var(--gold);}
+  .fdot.l{background:var(--red);}
+  .legend{
+    display:flex; gap:20px; flex-wrap:wrap; padding:14px 20px;
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-faint);
+    border-top:1px solid var(--line);
+  }
+
+  /* FIXTURES */
+  .matchday{margin-bottom:28px;}
+  .matchday-label{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px;
+    color:var(--text-dim); text-transform:uppercase; margin-bottom:12px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .matchday-label::after{content:""; flex:1; height:1px; background:var(--line);}
+  .fixture-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:700px){.fixture-grid{grid-template-columns:1fr;}}
+  .match-card{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:12px;
+    padding:18px 20px;
+  }
+  .match-meta{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-faint);
+    letter-spacing:0.5px; margin-bottom:14px; text-transform:uppercase;
+  }
+  .match-meta .live{color:var(--green);}
+  .match-row{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .team-side{display:flex; align-items:center; gap:10px; flex:1;}
+  .team-side.right{flex-direction:row-reverse; text-align:right;}
+  .team-side .name{font-size:13.5px; font-weight:600;}
+  .score-box{display:flex; align-items:center; gap:8px;}
+  .score-input{
+    width:38px; height:38px; text-align:center; border-radius:8px;
+    background:var(--bg-panel-2); border:1px solid var(--line-strong); color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700;
+  }
+  .score-input:focus{outline:none; border-color:var(--green); box-shadow:0 0 0 3px var(--green-dim);}
+  .score-num{
+    width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    border-radius:8px; background:var(--bg-panel-2); border:1px solid var(--line-strong);
+    font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700;
+  }
+  .score-sep{color:var(--text-faint); font-family:'JetBrains Mono',monospace;}
+  .match-footer{
+    display:flex; justify-content:space-between; align-items:center; margin-top:14px;
+    padding-top:12px; border-top:1px dashed var(--line);
+  }
+  .status-pill{
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.8px;
+    padding:4px 10px; border-radius:100px; text-transform:uppercase;
+  }
+  .status-pill.pending{background:rgba(255,201,77,0.12); color:var(--gold); border:1px solid rgba(255,201,77,0.3);}
+  .status-pill.played{background:var(--green-dim); color:var(--green); border:1px solid rgba(51,255,160,0.3);}
+  .save-btn{
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.8px;
+    background:transparent; border:1px solid var(--line-strong); color:var(--text-dim);
+    padding:6px 12px; border-radius:8px; cursor:pointer; text-transform:uppercase;
+    transition: all 0.15s;
+  }
+  .save-btn:hover{border-color:var(--green); color:var(--green);}
+
+  footer{
+    margin-top:80px; padding:28px 0 40px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);
+  }
+  footer .reset{
+    background:none; border:1px solid var(--line-strong); color:var(--text-faint);
+    padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'JetBrains Mono',monospace;
+    font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase;
+  }
+  footer .reset:hover{border-color:var(--red); color:var(--red);}
+
+  @media (max-width:600px){
+    thead th, tbody td{padding:10px 5px; font-size:11.5px;}
+    td.club{font-size:12px;}
+    .crest{width:90px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <div class="brand">
+      <div class="brand-mark">e</div>
+      <div class="brand-text">eFOOTBALL <span>KANDAM LEAGUE</span></div>
+    </div>
+    <div class="nav-tag"><span class="dot"></span> UEFA KANDAM LEAGUE</div>
+  </nav>
+
+  <div class="hero">
+    <div class="floodlight"></div>
+    <div class="eyebrow">5 Clubs · Single Round-Robin · Online</div>
+    <h1>UEFA KANDAM<br><span class="accent">LEAGUE</span></h1>
+    <p class="hero-sub">Five clubs. Five matchdays. Ten fixtures. Every match runs 6 minutes — enter results as they finish and the standings update instantly.</p>
+    <div class="format-row">
+      <div class="format-chip">Match length <b>6 MIN</b></div>
+      <div class="format-chip">Format <b>ROUND ROBIN</b></div>
+      <div class="format-chip">Win <b>3 PTS</b></div>
+      <div class="format-chip">Draw <b>1 PT</b></div>
+    </div>
+
+    <div class="crest-strip" id="crestStrip"></div>
+  </div>
+
+  <section id="standingsSection">
+    <div class="sec-head">
+      <h2>League <span>Standings</span></h2>
+      <div class="sec-note">UPDATES LIVE FROM FIXTURES</div>
+    </div>
+    <div class="table-panel">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th class="club">Club</th>
+            <th>PLD</th>
+            <th>W</th>
+            <th>D</th>
+            <th>L</th>
+            <th>GF</th>
+            <th>GA</th>
+            <th>GD</th>
+            <th>PTS</th>
+            <th>Form</th>
+          </tr>
+        </thead>
+        <tbody id="standingsBody"></tbody>
+      </table>
+      <div class="legend">
+        <span>PLD Played</span><span>GF Goals For</span><span>GA Goals Against</span><span>GD Goal Difference</span><span>PTS Points</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="fixturesSection">
+    <div class="sec-head">
+      <h2>Match <span>Schedule</span></h2>
+      <div class="sec-note">RESULTS UPDATED BY THE ORGANISER</div>
+    </div>
+    <div id="fixturesContainer"></div>
+  </section>
+
+  <footer>
+    <div>UEFA Kandam League · eFootball · Unofficial fan tournament page</div>
+  </footer>
+</div>
+
+<script>
+  const teams = [
+    { id:'groot', name:'GROOT FC',        short:'GRT', color:'#33ffa0' },
+    { id:'anju',  name:'ANJOORAN UNITED', short:'ANJ', color:'#ff5c72' },
+    { id:'kandam',name:'KANDAM BOYS',     short:'KDB', color:'#3d8bff' },
+    { id:'noxaro',name:'NOXARO',          short:'NOX', color:'#ffc94d' },
+    { id:'naxinou',name:'NAXINOU',        short:'NAX', color:'#b07cff' },
+  ];
+  const teamById = Object.fromEntries(teams.map(t=>[t.id,t]));
+
+  // Single round robin: 5 teams = 5 matchdays x 2 matches (one club rests each matchday)
+  const fixtures = [
+    { md:1, time:'19:00 IST', home:'groot',  away:'anju',   hs:null, as:null },
+    { md:1, time:'19:10 IST', home:'kandam', away:'noxaro', hs:null, as:null },
+    { md:2, time:'19:00 IST', home:'groot',  away:'kandam', hs:null, as:null },
+    { md:2, time:'19:10 IST', home:'anju',   away:'naxinou',hs:null, as:null },
+    { md:3, time:'19:00 IST', home:'groot',  away:'noxaro', hs:null, as:null },
+    { md:3, time:'19:10 IST', home:'kandam', away:'naxinou',hs:null, as:null },
+    { md:4, time:'19:00 IST', home:'groot',  away:'naxinou',hs:null, as:null },
+    { md:4, time:'19:10 IST', home:'anju',   away:'noxaro', hs:null, as:null },
+    { md:5, time:'19:00 IST', home:'anju',   away:'kandam', hs:null, as:null },
+    { md:5, time:'19:10 IST', home:'noxaro', away:'naxinou',hs:null, as:null },
+  ];
+
+  // ============================================================
+  //  ORGANISER ONLY: add match results here, then re-upload the file.
+  //  Format:  'homeId-awayId': [homeGoals, awayGoals],
+  //  Example: 'groot-anju': [2, 1],
+  //  Team ids: groot, anju, kandam, noxaro, naxinou
+  // ============================================================
+  const RESULTS = {
+    // 'groot-anju': [0, 0],
+    // 'kandam-noxaro': [0, 0],
+    // 'groot-kandam':[0, 0,],
+    // 'anju-naxinou':[0, 0],
+    // 'groot-noxaro':[0, 0],
+    // 'kandam-naxinou':[0, 0],
+  };
+
+  fixtures.forEach(f=>{
+    const r = RESULTS[f.home + '-' + f.away];
+    if(r){ f.hs = r[0]; f.as = r[1]; }
+  });
+
+  function initials(name){
+    const t = teams.find(t=>t.name===name);
+    return t ? t.short : name.slice(0,3).toUpperCase();
+  }
+
+  function badgeStyle(color){
+    return `background:${color}22; color:${color}; border:1px solid ${color}55;`;
+  }
+
+  function renderCrests(){
+    const el = document.getElementById('crestStrip');
+    el.innerHTML = teams.map(t=>`
+      <div class="crest">
+        <div class="crest-badge" style="${badgeStyle(t.color)}">${initials(t.name)}</div>
+        <div class="crest-name">${t.name}</div>
+      </div>
+    `).join('');
+  }
+
+  function computeStandings(){
+    const stats = Object.fromEntries(teams.map(t=>[t.id, {
+      id:t.id, pld:0, w:0, d:0, l:0, gf:0, ga:0, form:[]
+    }]));
+
+    fixtures.forEach(f=>{
+      if(f.hs===null || f.as===null || f.hs===''||f.as==='') return;
+      const hs = Number(f.hs), as = Number(f.as);
+      const H = stats[f.home], A = stats[f.away];
+      H.pld++; A.pld++;
+      H.gf+=hs; H.ga+=as; A.gf+=as; A.ga+=hs;
+      if(hs>as){ H.w++; A.l++; H.form.push('w'); A.form.push('l'); }
+      else if(hs<as){ A.w++; H.l++; A.form.push('w'); H.form.push('l'); }
+      else { H.d++; A.d++; H.form.push('d'); A.form.push('d'); }
+    });
+
+    const rows = teams.map(t=>{
+      const s = stats[t.id];
+      return { ...t, ...s, gd: s.gf - s.ga, pts: s.w*3 + s.d };
+    });
+
+    rows.sort((a,b)=> b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || a.name.localeCompare(b.name));
+    return rows;
+  }
+
+  function renderStandings(){
+    const rows = computeStandings();
+    const body = document.getElementById('standingsBody');
+    body.innerHTML = rows.map((r,i)=>{
+      const gdClass = r.gd>0?'pos-gd':(r.gd<0?'neg-gd':'');
+      const gdText = r.gd>0? `+${r.gd}` : r.gd;
+      const formDots = r.form.slice(-5).map(f=>`<span class="fdot ${f}"></span>`).join('') || '<span style="color:var(--text-faint);font-size:11px;">—</span>';
+      return `
+        <tr class="${i===0 && r.pld>0 ? 'leader':''}">
+          <td class="pos">${i===0 && r.pld>0 ? '<span class=\"rank-bar\"></span>':''}${i+1}</td>
+          <td class="club">
+            <div class="club-cell">
+              <div class="mini-badge" style="${badgeStyle(r.color)}">${initials(r.name)}</div>
+              ${r.name}
+            </div>
+          </td>
+          <td>${r.pld}</td>
+          <td>${r.w}</td>
+          <td>${r.d}</td>
+          <td>${r.l}</td>
+          <td>${r.gf}</td>
+          <td>${r.ga}</td>
+          <td class="gd ${gdClass}">${gdText}</td>
+          <td class="pts">${r.pts}</td>
+          <td><div class="form-dots">${formDots}</div></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderFixtures(){
+    const container = document.getElementById('fixturesContainer');
+    const byMd = {};
+    fixtures.forEach((f,idx)=>{ (byMd[f.md] ||= []).push({...f, idx}); });
+
+    container.innerHTML = Object.keys(byMd).map(md=>`
+      <div class="matchday">
+        <div class="matchday-label">Matchday ${md}</div>
+        <div class="fixture-grid">
+          ${byMd[md].map(f=>{
+            const home = teamById[f.home], away = teamById[f.away];
+            const played = f.hs!==null && f.as!==null && f.hs!=='' && f.as!=='';
+            return `
+            <div class="match-card">
+              <div class="match-meta">
+                <span>${f.time} · 6 MIN</span>
+                <span class="${played?'':'live'}">${played?'FULL TIME':'ONLINE'}</span>
+              </div>
+              <div class="match-row">
+                <div class="team-side">
+                  <div class="mini-badge" style="${badgeStyle(home.color)}">${initials(home.name)}</div>
+                  <span class="name">${home.name}</span>
+                </div>
+                <div class="score-box">
+                  <span class="score-num">${played ? f.hs : '-'}</span>
+                  <span class="score-sep">:</span>
+                  <span class="score-num">${played ? f.as : '-'}</span>
+                </div>
+                <div class="team-side right">
+                  <div class="mini-badge" style="${badgeStyle(away.color)}">${initials(away.name)}</div>
+                  <span class="name">${away.name}</span>
+                </div>
+              </div>
+              <div class="match-footer">
+                <span class="status-pill ${played?'played':'pending'}">${played?'Result confirmed':'Awaiting result'}</span>
+              </div>
+            </div>
+          `}).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  renderCrests();
+  renderStandings();
+  renderFixtures();
+</script>
+
+</body>
+</html>
